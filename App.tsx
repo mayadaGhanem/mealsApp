@@ -4,57 +4,67 @@
  *
  * @format
  */
-
+import './gesture-handler';
 import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import {StatusBar, useColorScheme} from 'react-native';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import CategoriesScreen from './screens/CategoriesScreen';
+import MealsScreen from './screens/MealsScreen';
+import MealDetails from './screens/MealDetailsScreen';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import FavoriteContextProvider from './store/context/favorite-context';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import FavoriteScreen from './screens/FavoriteScreen';
+import {Provider} from 'react-redux';
+import {store} from './store/redux/favorites-store';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const RootStack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+function HomeScreenWithDrawer() {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <Drawer.Navigator
+      screenOptions={{
+        headerTintColor: '#ffff',
+        headerStyle: {
+          backgroundColor: '#403b59',
+        },
+        sceneStyle: {
+          backgroundColor: '#403b52',
+        },
+        drawerContentStyle: {
+          backgroundColor: '#403b59',
+        },
+        drawerInactiveTintColor: '#fff',
+        drawerActiveBackgroundColor: '#fff',
+        drawerActiveTintColor: '#403b52',
+      }}>
+      <Drawer.Screen
+        name="Home"
+        component={CategoriesScreen}
+        options={{
+          title: 'All Categories',
+
+          drawerIcon: ({color, size}) => (
+            <Icon name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="WishList"
+        component={FavoriteScreen}
+        options={{
+          title: 'WishList',
+          drawerIcon: ({color, size}) => (
+            <Icon name="heart" size={size} color={color} />
+          ),
+        }}
+      />
+    </Drawer.Navigator>
   );
 }
-
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -63,56 +73,44 @@ function App(): React.JSX.Element {
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
+    <>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      {/* <FavoriteContextProvider> */}
+      <Provider store={store}>
+        <NavigationContainer>
+          <RootStack.Navigator
+            screenOptions={{
+              contentStyle: {
+                backgroundColor: '#403b52',
+              },
+              headerStyle: {
+                backgroundColor: '#403b59',
+              },
+              headerTintColor: '#fff',
+            }}>
+            <RootStack.Screen
+              name="MealsCategories"
+              component={HomeScreenWithDrawer}
+              options={{headerShown: false}}
+            />
+            <RootStack.Screen
+              name={'MealsOverView'}
+              component={MealsScreen}
+              options={({route}) => ({
+                title: route.path,
+              })}
+            />
+            <RootStack.Screen name={'MealDetails'} component={MealDetails} />
+          </RootStack.Navigator>
+        </NavigationContainer>
+      </Provider>
+
+      {/* </FavoriteContextProvider> */}
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;

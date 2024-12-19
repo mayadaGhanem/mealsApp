@@ -1,0 +1,1 @@
+/Users/mayadaghanem/projects/meals-app/mealsApp/node_modules/react-native-vector-icons/Fonts
